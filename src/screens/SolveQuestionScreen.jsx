@@ -126,7 +126,7 @@ export default function SolveQuestionScreen({ navigation }) {
             );
 
             return () => {
-                BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+                backHandler.remove();
             };
         }, [])
     )
