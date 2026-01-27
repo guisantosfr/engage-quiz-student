@@ -3,16 +3,18 @@
   "version": "1.0.0",
   "main": "expo-router/entry",
   "scripts": {
-    "start": "expo start",
+    "start": "expo start --clear",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web"
   },
   "dependencies": {
     "@expo/metro-config": "^54.0.14",
+    "@react-native-vector-icons/fontawesome6": "^12.3.0",
     "babel-preset-expo": "^54.0.10",
     "expo": "~54.0.32",
     "expo-constants": "~18.0.13",
+    "expo-linear-gradient": "^15.0.8",
     "expo-linking": "~8.0.11",
     "expo-router": "~6.0.22",
     "expo-status-bar": "~3.0.9",
