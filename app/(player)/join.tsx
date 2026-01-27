@@ -1,47 +1,109 @@
-import { Pressable, Text, TextInput, View } from "react-native";
+import {
+    Pressable,
+    Text,
+    TextInput,
+    View,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet
+} from "react-native";
 import GradientBackground from "@/components/GradientBackground";
-//import Header from "@/components/Header";
+import FontAwesome6 from "@react-native-vector-icons/fontawesome6";
 
 export default function JoinScreen() {
     return (
         <GradientBackground>
-            {/* <Header /> */}
+            <KeyboardAvoidingView
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                className="flex-1"
+            >
+                <ScrollView
+                    contentContainerStyle={styles.scrollContent}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    <View className="flex-1 items-center justify-center gap-6 px-6 py-10">
+                        <Text className="text-4xl font-bold text-white tracking-wide">
+                            EngageQuiz
+                        </Text>
+                        <Text className="text-lg text-white/80 text-center mb-4">
+                            Preencha os campos abaixo para se conectar a um questionário
+                        </Text>
 
-            <View className="flex-1 items-center justify-center gap-5">
-                <Text className="text-3xl font-bold text-white">
-                    EngageQuiz
-                </Text>
-                <Text className="text-xl text-white w-3/4 mx-auto">
-                    Preencha os campos abaixo para se conectar a um questionário
-                </Text>
+                        <View className="w-full">
+                            <Text className="text-sm text-white/70 mb-2 ml-1">
+                                Apelido / Nickname
+                            </Text>
+                            <View className="flex-row items-center bg-white/10 rounded-2xl border border-white/20 px-4">
+                                <FontAwesome6
+                                    name="user"
+                                    iconStyle="solid"
+                                    size={18}
+                                    color="rgba(255,255,255,0.6)"
+                                />
+                                <TextInput
+                                    placeholder="Como gostaria de ser chamado?"
+                                    placeholderTextColor="rgba(255,255,255,0.4)"
+                                    className="flex-1 p-4 text-white text-base"
+                                    maxLength={20}
+                                />
+                            </View>
+                        </View>
 
+                        <View className="w-full">
+                            <Text className="text-sm text-white/70 mb-2 ml-1">
+                                Código / PIN (6 dígitos)
+                            </Text>
+                            <View className="flex-row items-center bg-white/10 rounded-2xl border border-white/20 px-4">
+                                <FontAwesome6
+                                    name="hashtag"
+                                    iconStyle="solid"
+                                    size={18}
+                                    color="rgba(255,255,255,0.6)"
+                                />
+                                <TextInput
+                                    placeholder="Digite o PIN de 6 dígitos"
+                                    placeholderTextColor="rgba(255,255,255,0.4)"
+                                    className="flex-1 p-4 text-white text-base tracking-widest"
+                                    maxLength={6}
+                                    keyboardType="numeric"
+                                />
+                            </View>
+                        </View>
 
-                {/* label */}
-                <Text className="text-md text-white w-3/4 mx-auto">
-                    Apelido / Nickname
-                </Text>
-                <TextInput
-                    placeholder="Como gostaria de ser chamado?"
-                    placeholderTextColor="white"
-                    className="w-3/4 mx-auto p-4 rounded-lg border border-white text-white"
-                    maxLength={20}
-                />
-
-                <Text className="text-md text-white w-3/4 mx-auto">
-                    Código / PIN (6 dígitos)
-                </Text>
-                <TextInput
-                    placeholder="######"
-                    placeholderTextColor="white"
-                    className="w-3/4 mx-auto p-4 rounded-lg border border-white text-white"
-                    maxLength={6}
-                    keyboardType="numeric"
-                />
-
-                <Pressable className="mx-auto p-4 rounded-xl bg-blue-700 w-1/2">
-                    <Text className="text-xl text-white font-bold text-center">Conectar</Text>
-                </Pressable>
-            </View>
+                        <Pressable
+                            className="w-full mt-4 p-4 rounded-2xl bg-blue-600 active:bg-blue-700"
+                            style={styles.button}
+                        >
+                            <View className="flex-row items-center justify-center gap-3">
+                                <FontAwesome6
+                                    name="right-to-bracket"
+                                    iconStyle="solid"
+                                    size={20}
+                                    color="white"
+                                />
+                                <Text className="text-xl text-white font-bold">
+                                    Conectar
+                                </Text>
+                            </View>
+                        </Pressable>
+                    </View>
+                </ScrollView>
+            </KeyboardAvoidingView>
         </GradientBackground>
     )
 }
+
+const styles = StyleSheet.create({
+    scrollContent: {
+        flexGrow: 1,
+        justifyContent: 'center',
+    },
+    button: {
+        shadowColor: '#3b82f6',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 8,
+    },
+});
