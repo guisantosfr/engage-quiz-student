@@ -1,17 +1,33 @@
-import {
-    Pressable,
-    Text,
-    TextInput,
-    View,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet
-} from "react-native";
+import { useState } from "react";
+import { useRouter } from "expo-router";
+import { Pressable, Text, TextInput, View, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Alert } from "react-native";
 import GradientBackground from "@/components/GradientBackground";
 import FontAwesome6 from "@react-native-vector-icons/fontawesome6";
 
 export default function JoinScreen() {
+    const router = useRouter();
+
+    const [nickname, setNickname] = useState('');
+    const [sessionCode, setSessionCode] = useState('');
+
+    const handleJoin = () => {
+        if (!nickname || !sessionCode) {
+            Alert.alert(
+                'Erro',
+                'Por favor, preencha todos os campos.',
+                [
+                    {
+                        text: 'OK',
+                        onPress: () => { },
+                    },
+                ]
+            );
+            return;
+        }
+
+        router.push(`/lobby/${sessionCode}`);
+    };
+
     return (
         <GradientBackground>
             <KeyboardAvoidingView
@@ -46,6 +62,8 @@ export default function JoinScreen() {
                                     placeholderTextColor="rgba(255,255,255,0.4)"
                                     className="flex-1 p-4 text-white text-base"
                                     maxLength={20}
+                                    value={nickname}
+                                    onChangeText={setNickname}
                                 />
                             </View>
                         </View>
@@ -67,6 +85,8 @@ export default function JoinScreen() {
                                     className="flex-1 p-4 text-white text-base tracking-widest"
                                     maxLength={6}
                                     keyboardType="numeric"
+                                    value={sessionCode}
+                                    onChangeText={setSessionCode}
                                 />
                             </View>
                         </View>
@@ -74,6 +94,7 @@ export default function JoinScreen() {
                         <Pressable
                             className="w-full mt-4 p-4 rounded-2xl bg-blue-600 active:bg-blue-700"
                             style={styles.button}
+                            onPress={handleJoin}
                         >
                             <View className="flex-row items-center justify-center gap-3">
                                 <FontAwesome6
