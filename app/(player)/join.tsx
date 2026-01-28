@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import { Pressable, Text, TextInput, View, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Alert } from "react-native";
 import GradientBackground from "@/components/GradientBackground";
 import FontAwesome6 from "@react-native-vector-icons/fontawesome6";
+import Toast from "react-native-toast-message";
 
 export default function JoinScreen() {
     const router = useRouter();
@@ -12,17 +13,10 @@ export default function JoinScreen() {
 
     const handleJoin = () => {
         if (!nickname || !sessionCode) {
-            Alert.alert(
-                'Erro',
-                'Por favor, preencha todos os campos.',
-                [
-                    {
-                        text: 'OK',
-                        onPress: () => { },
-                    },
-                ]
-            );
-            return;
+            return Toast.show({
+                type: 'error',
+                text1: 'Por favor, preencha todos os campos.',
+            })
         }
 
         router.push(`/lobby/${sessionCode}`);
