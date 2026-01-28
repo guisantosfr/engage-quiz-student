@@ -4,12 +4,28 @@ import { Pressable, Text, TextInput, View, KeyboardAvoidingView, Platform, Scrol
 import GradientBackground from "@/components/GradientBackground";
 import FontAwesome6 from "@react-native-vector-icons/fontawesome6";
 import Toast from "react-native-toast-message";
+import { useMutation } from "@tanstack/react-query";
 
 export default function JoinScreen() {
     const router = useRouter();
 
-    const [nickname, setNickname] = useState('');
-    const [sessionCode, setSessionCode] = useState('');
+    const [nickname, setNickname] = useState<string>('');
+    const [sessionCode, setSessionCode] = useState<string>('');
+
+    const joinSession = async () => {
+        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/sessions/${sessionCode}/join`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                nickname: nickname.trim(),
+            }),
+        });
+
+        const data = await response.json();
+        return data;
+    }
 
     const handleJoin = () => {
         if (!nickname || !sessionCode) {
@@ -19,8 +35,28 @@ export default function JoinScreen() {
             })
         }
 
-        router.push(`/lobby/${sessionCode}`);
+        joinMutation.mutate();
     };
+
+    const joinMutation = useMutation({
+        mutationFn: joinSession,
+        onSuccess: (data) => {
+            Toast.show({
+                type: 'success',
+                text1: 'Conectado com sucesso!',
+            })
+
+            router.push(`/lobby/${data.session.id}`);
+        },
+        onError: (error) => {
+            console.error(error);
+
+            Toast.show({
+                type: 'error',
+                text1: 'Erro ao se conectar ao questionário.',
+            })
+        }
+    })
 
     return (
         <GradientBackground>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -16,8 +16,19 @@ import GradientBackground from '@/components/GradientBackground';
 const MAX_VISIBLE_PLAYERS = 10;
 
 export default function StudentLobbyScreen() {
-    const { sessionCode } = useLocalSearchParams<{ sessionCode: string }>();
+    const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
     const router = useRouter();
+
+    const [session, setSession] = useState(null);
+
+    useEffect(() => {
+        const fetchSessionData = async () => {
+            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/sessions/${sessionId}`);
+            const data = await response.json();
+            setSession(data);
+        };
+        fetchSessionData();
+    }, [])
 
     const [quizName] = useState('Questionário de Geografia');
     const [playerName] = useState('Guilherme');
