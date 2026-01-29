@@ -14,6 +14,7 @@ import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 import GradientBackground from '@/components/GradientBackground';
 import { Session } from '@/types/Session';
 import { Player } from '@/types/Player';
+import Toast from 'react-native-toast-message';
 
 const MAX_VISIBLE_PLAYERS = 10;
 
@@ -55,6 +56,33 @@ export default function StudentLobbyScreen() {
     const visiblePlayers = players.slice(0, MAX_VISIBLE_PLAYERS);
     const hiddenPlayersCount = Math.max(0, players.length - MAX_VISIBLE_PLAYERS);
 
+    const leaveSession = async () => {
+        try {
+            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/sessions/${sessionId}/players/${playerId}/leave`, {
+                method: 'DELETE'
+            });
+
+            if(response.ok){
+                Toast.show({
+                    type: 'success',
+                    text1: 'Você saiu da sessão'
+                })
+
+                router.replace('/join');
+            } else {
+                Toast.show({
+                type: 'error',
+                text1: 'Não foi possível sair da sessão'
+            })
+            }
+        } catch (error) {
+            Toast.show({
+                type: 'error',
+                text1: 'Não foi possível sair da sessão'
+            })
+        }
+    }
+
     const handleExit = () => {
         Alert.alert(
             'Sair do Lobby',
@@ -64,7 +92,7 @@ export default function StudentLobbyScreen() {
                 {
                     text: 'Sair',
                     style: 'destructive',
-                    onPress: () => router.back()
+                    onPress: leaveSession
                 },
             ]
         );
