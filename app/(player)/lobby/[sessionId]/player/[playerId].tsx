@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
     View,
     Text,
@@ -15,6 +15,7 @@ import GradientBackground from '@/components/GradientBackground';
 import { Session } from '@/types/Session';
 import { Player } from '@/types/Player';
 import Toast from 'react-native-toast-message';
+import { io, Socket } from 'socket.io-client';
 
 const MAX_VISIBLE_PLAYERS = 10;
 
@@ -30,58 +31,62 @@ export default function StudentLobbyScreen() {
     const [player, setPlayer] = useState<Player>();
     const [players, setPlayers] = useState<Player[]>([]);
 
+    const socketRef = useRef<Socket | null>(null);
+
     if (!sessionId || !playerId) {
         return <Redirect href="/join" />;
     }
 
-    useEffect(() => {
-        const fetchSessionPlayerData = async () => {
-            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/sessions/${sessionId}/player/${playerId}`);
+    const fetchSessionPlayerData = useCallback(async () => {
+        try {
+            const response = await fetch(
+                `${process.env.EXPO_PUBLIC_API_URL}/sessions/${sessionId}/player/${playerId}`
+            );
             const data = await response.json();
             setSession(data.session);
-            setPlayer(data.player)
-        };
-        fetchSessionPlayerData();
-    }, [])
+            setPlayer(data.player);
+        } catch (error) {
+            console.error(error);
+            Toast.show({ type: 'error', text1: 'Erro ao carregar sessão' });
+        }
+    }, [sessionId, playerId]);
+
+    const fetchPlayers = useCallback(async () => {
+        try {
+            const response = await fetch(
+                `${process.env.EXPO_PUBLIC_API_URL}/sessions/${sessionId}/players`
+            );
+            const data = await response.json();
+            setPlayers(data);
+        } catch (error) {
+            console.error(error);
+        }
+    }, [sessionId]);
 
     useEffect(() => {
-        const fetchPlayers = async () => {
-            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/sessions/${sessionId}/players`);
-            const data = await response.json();
-            setPlayers(data)
-        };
+        fetchSessionPlayerData();
         fetchPlayers();
-    }, [])
+    }, [fetchSessionPlayerData, fetchPlayers]);
 
-    const visiblePlayers = players.slice(0, MAX_VISIBLE_PLAYERS);
-    const hiddenPlayersCount = Math.max(0, players.length - MAX_VISIBLE_PLAYERS);
-
-    const leaveSession = async () => {
+    const leaveSession = useCallback(async () => {
         try {
-            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/sessions/${sessionId}/players/${playerId}/leave`, {
-                method: 'DELETE'
-            });
+            const response = await fetch(
+                `${process.env.EXPO_PUBLIC_API_URL}/sessions/${sessionId}/players/${playerId}/leave`,
+                { method: 'DELETE' }
+            );
 
-            if(response.ok){
-                Toast.show({
-                    type: 'success',
-                    text1: 'Você saiu da sessão'
-                })
-
+            if (response.ok) {
+                Toast.show({ type: 'success', text1: 'Você saiu da sessão' });
+                socketRef.current?.disconnect();
                 router.replace('/join');
             } else {
-                Toast.show({
-                type: 'error',
-                text1: 'Não foi possível sair da sessão'
-            })
+                Toast.show({ type: 'error', text1: 'Não foi possível sair da sessão' });
             }
         } catch (error) {
-            Toast.show({
-                type: 'error',
-                text1: 'Não foi possível sair da sessão'
-            })
+            console.error(error)
+            Toast.show({ type: 'error', text1: 'Não foi possível sair da sessão' });
         }
-    }
+    }, [sessionId, playerId, router]);
 
     const handleExit = () => {
         Alert.alert(
@@ -97,6 +102,76 @@ export default function StudentLobbyScreen() {
             ]
         );
     };
+
+    useEffect(() => {
+        const socket = io(`${process.env.EXPO_PUBLIC_API_URL}/sessions`, {
+            transports: ['websocket'],
+            autoConnect: true,
+        });
+
+        socketRef.current = socket;
+
+        socket.on("connect", () => {
+            socket.emit('join_session', {
+                sessionId,
+                playerId,
+                nickname: player?.nickname ?? 'Aluno',
+            });
+        });
+
+        const shouldHandle = (payload: any) => {
+            return !payload?.sessionId || payload.sessionId === sessionId;
+        };
+
+        const refreshPlayers = async (payload: any) => {
+            if (!shouldHandle(payload)) return;
+            await fetchPlayers();
+        };
+
+        const onPlayerKicked = (payload: any) => {
+            if (!shouldHandle(payload)) return;
+
+            // seu payload atual é { player: { playerId, nickname }, ... }
+            const kickedId = payload?.player?.playerId ?? payload?.playerId;
+            if (kickedId === playerId) {
+                Toast.show({ type: 'error', text1: 'Você foi expulso da sessão' });
+                socket.disconnect();
+                router.replace('/join');
+            }
+        };
+
+        const onSessionCanceled = (payload: any) => {
+            if (!shouldHandle(payload)) return;
+            Toast.show({ type: 'error', text1: 'Sessão cancelada' });
+            socket.disconnect();
+            router.replace('/join');
+        };
+
+        socket.on('player_joined', refreshPlayers);
+        socket.on('player_left', refreshPlayers);
+        socket.on('player_disconnected', refreshPlayers);
+
+        socket.on('player_kicked', onPlayerKicked);
+        socket.on('session_canceled', onSessionCanceled);
+
+        socket.on('connect_error', (err) => {
+            console.error('Socket connect_error:', err?.message || err);
+        });
+
+        return () => {
+            socket.off('player_joined', refreshPlayers);
+            socket.off('player_left', refreshPlayers);
+            socket.off('player_disconnected', refreshPlayers);
+            socket.off('player_kicked', onPlayerKicked);
+            socket.off('session_canceled', onSessionCanceled);
+            socket.disconnect();
+            socketRef.current = null;
+        };
+
+    }, [sessionId, playerId, fetchPlayers, router]);
+
+    const visiblePlayers = players.slice(0, MAX_VISIBLE_PLAYERS);
+    const hiddenPlayersCount = Math.max(0, players.length - MAX_VISIBLE_PLAYERS);
 
     return (
         <GradientBackground>
