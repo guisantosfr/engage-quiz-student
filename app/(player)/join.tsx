@@ -46,7 +46,7 @@ export default function JoinScreen() {
                 text1: 'Conectado com sucesso!',
             })
 
-            router.push(`/lobby/${data.session.id}`);
+            router.push(`/lobby/${data.session.id}/player/${data.player.id}`);
         },
         onError: (error) => {
             console.error(error);

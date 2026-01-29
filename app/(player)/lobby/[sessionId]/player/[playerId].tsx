@@ -8,43 +8,49 @@ import {
     ScrollView,
     StyleSheet
 } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 import GradientBackground from '@/components/GradientBackground';
+import { Session } from '@/types/Session';
+import { Player } from '@/types/Player';
 
 const MAX_VISIBLE_PLAYERS = 10;
 
 export default function StudentLobbyScreen() {
-    const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
+    const { sessionId, playerId } = useLocalSearchParams<{
+        sessionId: string;
+        playerId: string;
+    }>();
+
     const router = useRouter();
 
-    const [session, setSession] = useState(null);
+    const [session, setSession] = useState<Session>();
+    const [player, setPlayer] = useState<Player>();
+    const [players, setPlayers] = useState<Player[]>([]);
+
+    if (!sessionId || !playerId) {
+        return <Redirect href="/join" />;
+    }
 
     useEffect(() => {
-        const fetchSessionData = async () => {
-            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/sessions/${sessionId}`);
+        const fetchSessionPlayerData = async () => {
+            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/sessions/${sessionId}/player/${playerId}`);
             const data = await response.json();
-            setSession(data);
+            setSession(data.session);
+            setPlayer(data.player)
         };
-        fetchSessionData();
+        fetchSessionPlayerData();
     }, [])
 
-    const [quizName] = useState('Questionário de Geografia');
-    const [playerName] = useState('Guilherme');
-    const [players] = useState([
-        { id: '1', name: 'Guilherme' },
-        { id: '2', name: 'Maria' },
-        { id: '3', name: 'João' },
-        { id: '4', name: 'Ana' },
-        { id: '5', name: 'Pedro' },
-        { id: '6', name: 'Carla' },
-        { id: '7', name: 'Lucas' },
-        { id: '8', name: 'Fernanda' },
-        { id: '9', name: 'Ricardo' },
-        { id: '10', name: 'Julia' },
-        { id: '11', name: 'Bruno' },
-    ]);
+    useEffect(() => {
+        const fetchPlayers = async () => {
+            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/sessions/${sessionId}/players`);
+            const data = await response.json();
+            setPlayers(data)
+        };
+        fetchPlayers();
+    }, [])
 
     const visiblePlayers = players.slice(0, MAX_VISIBLE_PLAYERS);
     const hiddenPlayersCount = Math.max(0, players.length - MAX_VISIBLE_PLAYERS);
@@ -68,9 +74,8 @@ export default function StudentLobbyScreen() {
         <GradientBackground>
             <SafeAreaView className="flex-1">
                 <View className="flex-row items-center justify-between px-5 py-4">
-                    <View className="w-10" />
-                    <Text className="text-xl font-bold text-white text-center flex-1">
-                        {quizName}
+                    <Text className="text-xl font-bold text-white flex-1">
+                        {session?.quiz.title}
                     </Text>
                     <Pressable
                         onPress={handleExit}
@@ -98,7 +103,7 @@ export default function StudentLobbyScreen() {
                         </View>
                         <View className="flex-1">
                             <Text className="text-white/60 text-sm text-center">Conectado como</Text>
-                            <Text className="text-white text-lg font-semibold text-center">{playerName}</Text>
+                            <Text className="text-white text-lg font-semibold text-center">{player?.nickname}</Text>
                         </View>
                     </View>
 
@@ -114,13 +119,13 @@ export default function StudentLobbyScreen() {
                     <View className="flex-row flex-wrap gap-3 justify-center">
                         {visiblePlayers.map((player) => (
                             <View
-                                key={player.id}
+                                key={player?.id}
                                 className="bg-white/10 rounded-xl px-4 py-3 flex-row items-center gap-2 border border-white/10"
                             >
                                 <View className="w-8 h-8 rounded-full bg-white/20 items-center justify-center">
                                     <FontAwesome6 name="user" iconStyle="solid" size={12} color="rgba(255,255,255,0.8)" />
                                 </View>
-                                <Text className="text-white text-sm">{player.name}</Text>
+                                <Text className="text-white text-sm">{player?.nickname}</Text>
                             </View>
                         ))}
 
