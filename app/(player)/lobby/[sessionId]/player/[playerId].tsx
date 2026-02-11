@@ -131,8 +131,8 @@ export default function StudentLobbyScreen() {
         const onPlayerKicked = (payload: any) => {
             if (!shouldHandle(payload)) return;
 
-            // seu payload atual é { player: { playerId, nickname }, ... }
             const kickedId = payload?.player?.playerId ?? payload?.playerId;
+
             if (kickedId === playerId) {
                 Toast.show({ type: 'error', text1: 'Você foi expulso da sessão' });
                 socket.disconnect();
@@ -154,6 +154,22 @@ export default function StudentLobbyScreen() {
         socket.on('player_kicked', onPlayerKicked);
         socket.on('session_canceled', onSessionCanceled);
 
+        socket.on('quiz_started', (data: any) => {
+            socket.disconnect();
+            socketRef.current = null;
+
+            const firstQuestion = data.firstQuestion;
+            router.replace({
+                pathname: `/quiz/${sessionId}/question/1`,
+                params: {
+                    playerId,
+                    quizTitle: session?.quiz?.title ?? '',
+                    totalQuestions: String(session?.quiz?.numberOfQuestions ?? 0),
+                    questionData: JSON.stringify(firstQuestion),
+                },
+            });
+        });
+
         socket.on('connect_error', (err) => {
             console.error('Socket connect_error:', err?.message || err);
         });
@@ -164,6 +180,7 @@ export default function StudentLobbyScreen() {
             socket.off('player_disconnected', refreshPlayers);
             socket.off('player_kicked', onPlayerKicked);
             socket.off('session_canceled', onSessionCanceled);
+            socket.off('quiz_started');
             socket.disconnect();
             socketRef.current = null;
         };
