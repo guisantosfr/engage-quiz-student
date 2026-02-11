@@ -49,7 +49,7 @@ export default function DisplayQuestionScreen() {
     const initialQuestion: Question | null = questionData ? JSON.parse(questionData) : null;
 
     const [question, setQuestion] = useState<Question | null>(initialQuestion);
-    const [questionNumber, setQuestionNumber] = useState(Number(n));
+    const [questionNumber, setQuestionNumber] = useState(Number(n) + 1);
     const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
     const [timeLeft, setTimeLeft] = useState(initialQuestion?.timeLimit ?? 0);
     const [confirmed, setConfirmed] = useState(false);
@@ -239,9 +239,9 @@ export default function DisplayQuestionScreen() {
                         )}
                     </View>
 
-                    <View className="bg-white/10 rounded-2xl p-5 border border-white/20 my-10">
-                        <Text className="text-white text-xl font-semibold text-center leading-7">
-                            {question.title}
+                    <View className="bg-white/10 rounded-2xl p-5 border border-white/20 my-5">
+                        <Text className="text-white text-xl font-semibold leading-7">
+                            {question.text}
                         </Text>
                     </View>
 

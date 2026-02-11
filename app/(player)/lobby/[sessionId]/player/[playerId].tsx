@@ -160,7 +160,7 @@ export default function StudentLobbyScreen() {
 
             const firstQuestion = data.firstQuestion;
             router.replace({
-                pathname: `/quiz/${sessionId}/question/1`,
+                pathname: `/quiz/${sessionId}/question/0`,
                 params: {
                     playerId,
                     quizTitle: session?.quiz?.title ?? '',

@@ -7,7 +7,7 @@ export interface QuestionOption {
 
 export interface Question {
     id: string;
-    title: string;
+    text: string;
     type: QuestionType;
     options: QuestionOption[];
     timeLimit: number;
