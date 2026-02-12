@@ -6,7 +6,8 @@ import {
     Alert,
     ActivityIndicator,
     ScrollView,
-    StyleSheet
+    StyleSheet,
+    BackHandler,
 } from 'react-native';
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -88,7 +89,7 @@ export default function StudentLobbyScreen() {
         }
     }, [sessionId, playerId, router]);
 
-    const handleExit = () => {
+    const handleExit = useCallback(() => {
         Alert.alert(
             'Sair do Lobby',
             'Tem certeza que deseja sair do questionário?',
@@ -101,7 +102,15 @@ export default function StudentLobbyScreen() {
                 },
             ]
         );
-    };
+    }, [leaveSession]);
+
+    useEffect(() => {
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+            handleExit();
+            return true;
+        });
+        return () => backHandler.remove();
+    }, [handleExit]);
 
     useEffect(() => {
         const socket = io(`${process.env.EXPO_PUBLIC_API_URL}/sessions`, {

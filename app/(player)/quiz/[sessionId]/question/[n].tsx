@@ -7,6 +7,7 @@ import {
     ScrollView,
     StyleSheet,
     ActivityIndicator,
+    BackHandler,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -50,6 +51,7 @@ export default function DisplayQuestionScreen() {
 
     const [question, setQuestion] = useState<Question | null>(initialQuestion);
     const [questionNumber, setQuestionNumber] = useState(Number(n) + 1);
+    const [totalQuestionsCount] = useState(Number(totalQuestions) || 0);
     const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
     const [timeLeft, setTimeLeft] = useState(initialQuestion?.timeLimit ?? 0);
     const [confirmed, setConfirmed] = useState(false);
@@ -143,7 +145,7 @@ export default function DisplayQuestionScreen() {
         }
     }, [selectedOptionId, confirmed, submitting, question, sessionId, playerId]);
 
-    const handleExit = () => {
+    const handleExit = useCallback(() => {
         Alert.alert(
             'Sair do Questionário',
             'Tem certeza que deseja sair? Seu progresso será perdido.',
@@ -159,7 +161,15 @@ export default function DisplayQuestionScreen() {
                 },
             ]
         );
-    };
+    }, [router]);
+
+    useEffect(() => {
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+            handleExit();
+            return true;
+        });
+        return () => backHandler.remove();
+    }, [handleExit]);
 
     if (!question) {
         return (
@@ -187,7 +197,7 @@ export default function DisplayQuestionScreen() {
                             {quizTitle}
                         </Text>
                         <Text className="text-sm text-white/60">
-                            Questão {questionNumber} de {totalQuestions}
+                            Questão {questionNumber} de {totalQuestionsCount}
                         </Text>
                     </View>
                     <Pressable
