@@ -21,9 +21,10 @@ import { io, Socket } from 'socket.io-client';
 const MAX_VISIBLE_PLAYERS = 10;
 
 export default function StudentLobbyScreen() {
-    const { sessionId, playerId } = useLocalSearchParams<{
+    const { sessionId, playerId, nickname } = useLocalSearchParams<{
         sessionId: string;
         playerId: string;
+        nickname: string;
     }>();
 
     const router = useRouter();
@@ -124,7 +125,7 @@ export default function StudentLobbyScreen() {
             socket.emit('join_session', {
                 sessionId,
                 playerId,
-                nickname: player?.nickname ?? 'Aluno',
+                nickname: player?.nickname ?? nickname ?? 'Aluno',
             });
         });
 
@@ -173,7 +174,7 @@ export default function StudentLobbyScreen() {
                 params: {
                     playerId,
                     quizTitle: session?.quiz?.title ?? '',
-                    totalQuestions: String(session?.quiz?.numberOfQuestions ?? 0),
+                    totalQuestions: String(session?.quiz?.numberOfQuestions),
                     questionData: JSON.stringify(firstQuestion),
                 },
             });
@@ -232,7 +233,7 @@ export default function StudentLobbyScreen() {
                         </View>
                         <View className="flex-1">
                             <Text className="text-white/60 text-sm text-center">Conectado como</Text>
-                            <Text className="text-white text-lg font-semibold text-center">{player?.nickname}</Text>
+                            <Text className="text-white text-lg font-semibold text-center">{player?.nickname ?? nickname}</Text>
                         </View>
                     </View>
 

@@ -38,7 +38,7 @@ export default function JoinScreen() {
                     text1: 'Conectado com sucesso!',
                 })
 
-                router.push(`/lobby/${data.session.id}/player/${data.player.id}`);
+                router.push(`/lobby/${data.session.id}/player/${data.player.id}?nickname=${encodeURIComponent(nickname.trim())}`);
             }
         } catch (error) {
             console.error(error);
