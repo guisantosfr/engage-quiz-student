@@ -23,7 +23,8 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "softwareKeyboardLayoutMode": "pan"
+      "softwareKeyboardLayoutMode": "pan",
+      "package": "com.engagequiz.engagequizstudent"
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -31,6 +32,13 @@
     },
     "plugins": [
       "expo-router"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "f4d9bdfb-9d72-45c1-8ce0-b93bb726f35e"
+      }
+    },
+    "owner": "engagequiz"
   }
 }
