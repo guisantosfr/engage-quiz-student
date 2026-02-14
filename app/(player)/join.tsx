@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useRouter } from "expo-router";
-import { Pressable, Text, TextInput, View, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Alert } from "react-native";
+import { Pressable, Text, TextInput, View, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Alert, ActivityIndicator } from "react-native";
 import GradientBackground from "@/components/GradientBackground";
 import FontAwesome6 from "@react-native-vector-icons/fontawesome6";
 import Toast from "react-native-toast-message";
@@ -10,6 +10,7 @@ export default function JoinScreen() {
 
     const [nickname, setNickname] = useState<string>('');
     const [sessionCode, setSessionCode] = useState<string>('');
+    const [loading, setLoading] = useState(false);
 
     const CODE_LENGTH = 6;
 
@@ -21,13 +22,14 @@ export default function JoinScreen() {
             })
         }
 
-        if(sessionCode.length < CODE_LENGTH){
+        if (sessionCode.length < CODE_LENGTH) {
             return Toast.show({
                 type: 'error',
                 text1: 'O código deve conter 6 dígitos'
             })
         }
 
+        setLoading(true);
         try {
             const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/sessions/${sessionCode}/join`, {
                 method: 'POST',
@@ -49,6 +51,7 @@ export default function JoinScreen() {
 
                 router.push(`/lobby/${data.session.id}/player/${data.player.id}?nickname=${encodeURIComponent(nickname.trim())}`);
             } else {
+                setLoading(false);
                 Toast.show({
                     type: 'error',
                     text1: data.message
@@ -56,7 +59,7 @@ export default function JoinScreen() {
             }
         } catch (error) {
             console.error(error);
-
+            setLoading(false);
             Toast.show({
                 type: 'error',
                 text1: 'Erro ao se conectar ao questionário.',
@@ -128,19 +131,24 @@ export default function JoinScreen() {
                         </View>
 
                         <Pressable
-                            className="w-full mt-4 p-4 rounded-2xl bg-blue-600 active:bg-blue-700"
+                            className={`w-full mt-4 p-4 rounded-2xl ${loading ? 'bg-blue-600/50' : 'bg-blue-600 active:bg-blue-700'}`}
                             style={styles.button}
                             onPress={handleJoin}
+                            disabled={loading}
                         >
                             <View className="flex-row items-center justify-center gap-3">
-                                <FontAwesome6
-                                    name="right-to-bracket"
-                                    iconStyle="solid"
-                                    size={20}
-                                    color="white"
-                                />
+                                {loading ? (
+                                    <ActivityIndicator size="small" color="white" />
+                                ) : (
+                                    <FontAwesome6
+                                        name="right-to-bracket"
+                                        iconStyle="solid"
+                                        size={20}
+                                        color="white"
+                                    />
+                                )}
                                 <Text className="text-xl text-white font-bold">
-                                    Conectar
+                                    {loading ? 'Conectando...' : 'Conectar'}
                                 </Text>
                             </View>
                         </Pressable>
