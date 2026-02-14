@@ -290,7 +290,7 @@ export default function DisplayQuestionScreen() {
                                         {option.text}
                                     </Text>
                                     {isSelected && (
-                                        <FontAwesome6 name="circle-check" iconStyle="solid" size={20} color="white" />
+                                        <FontAwesome6 name="paper-plane" iconStyle="solid" size={20} color="white" />
                                     )}
                                 </Pressable>
                             );
@@ -305,7 +305,7 @@ export default function DisplayQuestionScreen() {
                             style={selectedOptionId ? styles.button : undefined}
                         >
                             <FontAwesome6
-                                name="paper-plane"
+                                name="arrow-right"
                                 iconStyle="solid"
                                 size={20}
                                 color={selectedOptionId ? 'white' : 'rgba(255,255,255,0.4)'}
