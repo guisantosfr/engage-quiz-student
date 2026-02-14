@@ -20,15 +20,15 @@ import { io, Socket } from 'socket.io-client';
 const OPTION_ICONS = ['diamond', 'circle', 'square', 'star'] as const;
 
 const OPTION_COLORS = [
-    { bg: 'bg-red-500/20', border: 'border-red-500/40', activeBg: 'bg-red-500/50' },
-    { bg: 'bg-blue-500/20', border: 'border-blue-500/40', activeBg: 'bg-blue-500/50' },
-    { bg: 'bg-yellow-500/20', border: 'border-yellow-500/40', activeBg: 'bg-yellow-500/50' },
-    { bg: 'bg-green-500/20', border: 'border-green-500/40', activeBg: 'bg-green-500/50' },
+    { bg: 'bg-red-500/10', border: 'border-red-500/40', activeBg: 'bg-red-500/60' },
+    { bg: 'bg-blue-500/10', border: 'border-blue-500/40', activeBg: 'bg-blue-500/60' },
+    { bg: 'bg-yellow-500/10', border: 'border-yellow-500/40', activeBg: 'bg-yellow-500/60' },
+    { bg: 'bg-green-500/10', border: 'border-green-500/40', activeBg: 'bg-green-500/60' },
 ];
 
 const TRUE_FALSE_COLORS = [
-    { bg: 'bg-green-500/20', border: 'border-green-500/40', activeBg: 'bg-green-500/50' },
-    { bg: 'bg-red-500/20', border: 'border-red-500/40', activeBg: 'bg-red-500/50' },
+    { bg: 'bg-green-500/10', border: 'border-green-500/40', activeBg: 'bg-green-500/60' },
+    { bg: 'bg-red-500/10', border: 'border-red-500/40', activeBg: 'bg-red-500/60' },
 ];
 
 type ClosedReason = 'timeout' | 'all_answered' | null;
