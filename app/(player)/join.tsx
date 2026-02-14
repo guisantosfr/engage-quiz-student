@@ -11,11 +11,20 @@ export default function JoinScreen() {
     const [nickname, setNickname] = useState<string>('');
     const [sessionCode, setSessionCode] = useState<string>('');
 
+    const CODE_LENGTH = 6;
+
     const handleJoin = async () => {
         if (!nickname || !sessionCode) {
             return Toast.show({
                 type: 'error',
                 text1: 'Por favor, preencha todos os campos.',
+            })
+        }
+
+        if(sessionCode.length < CODE_LENGTH){
+            return Toast.show({
+                type: 'error',
+                text1: 'O código deve conter 6 dígitos'
             })
         }
 
@@ -30,15 +39,20 @@ export default function JoinScreen() {
                 }),
             });
 
-            if (response.ok) {
-                const data = await response.json();
+            const data = await response.json();
 
+            if (response.ok) {
                 Toast.show({
                     type: 'success',
                     text1: 'Conectado com sucesso!',
                 })
 
                 router.push(`/lobby/${data.session.id}/player/${data.player.id}?nickname=${encodeURIComponent(nickname.trim())}`);
+            } else {
+                Toast.show({
+                    type: 'error',
+                    text1: data.message
+                })
             }
         } catch (error) {
             console.error(error);

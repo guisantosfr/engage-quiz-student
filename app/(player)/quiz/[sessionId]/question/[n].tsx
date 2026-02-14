@@ -58,7 +58,6 @@ export default function DisplayQuestionScreen() {
     const [submitting, setSubmitting] = useState(false);
     const [closedReason, setClosedReason] = useState<ClosedReason>(null);
 
-    console.log('totalQuestions', totalQuestions);
     // Timer countdown
     useEffect(() => {
         if (timeLeft <= 0 || confirmed || closedReason) return;
