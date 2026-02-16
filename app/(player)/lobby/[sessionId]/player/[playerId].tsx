@@ -208,10 +208,7 @@ export default function StudentLobbyScreen() {
     return (
         <GradientBackground>
             <SafeAreaView className="flex-1">
-                <View className="flex-row items-center justify-between px-5 py-4">
-                    <Text className="text-xl font-bold text-white flex-1">
-                        {session?.quiz.title}
-                    </Text>
+                <View className="flex-row items-center justify-end px-5 py-4">
                     <Pressable
                         onPress={handleExit}
                         className="w-10 h-10 items-center justify-center rounded-full bg-white/10"
@@ -225,6 +222,9 @@ export default function StudentLobbyScreen() {
                     contentContainerStyle={styles.scrollContent}
                     showsVerticalScrollIndicator={false}
                 >
+                    <Text className="text-xl font-bold text-justify text-white flex-1 w-9/10 mx-auto">
+                        {session?.quiz.title}
+                    </Text>
                     <View className="items-center py-8">
                         <ActivityIndicator size="large" color="#60a5fa" />
                         <Text className="text-white/70 text-base mt-4 text-center">

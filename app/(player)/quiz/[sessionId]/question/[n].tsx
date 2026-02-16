@@ -27,7 +27,7 @@ const OPTION_COLORS = [
 ];
 
 const TRUE_FALSE_COLORS = [
-    { bg: 'bg-green-500/10', border: 'border-green-500/40', activeBg: 'bg-green-500/60' },
+    { bg: 'bg-blue-500/10', border: 'border-blue-500/40', activeBg: 'bg-blue-500/60' },
     { bg: 'bg-red-500/10', border: 'border-red-500/40', activeBg: 'bg-red-500/60' },
 ];
 
@@ -201,10 +201,7 @@ export default function DisplayQuestionScreen() {
             <SafeAreaView className="flex-1">
                 <View className="flex-row items-center justify-between px-5 py-3">
                     <View className="flex-1">
-                        <Text className="text-lg font-bold text-white" numberOfLines={1}>
-                            {quizTitle}
-                        </Text>
-                        <Text className="text-sm text-white/60">
+                        <Text className="text-lg text-white/70">
                             Questão {questionNumber} de {totalQuestionsCount}
                         </Text>
                     </View>
