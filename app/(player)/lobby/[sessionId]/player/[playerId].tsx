@@ -84,7 +84,7 @@ export default function StudentLobbyScreen() {
             if (response.ok) {
                 Toast.show({ type: 'success', text1: 'Você saiu da sessão' });
                 socketRef.current?.disconnect();
-                router.replace('/join');
+                router.dismissAll();
             } else {
                 Toast.show({ type: 'error', text1: 'Não foi possível sair da sessão' });
             }
@@ -150,7 +150,7 @@ export default function StudentLobbyScreen() {
             if (kickedId === playerId) {
                 Toast.show({ type: 'error', text1: 'Você foi expulso da sessão' });
                 socket.disconnect();
-                router.replace('/join');
+                router.dismissAll();
             }
         };
 
@@ -158,7 +158,7 @@ export default function StudentLobbyScreen() {
             if (!shouldHandle(payload)) return;
             Toast.show({ type: 'error', text1: 'Sessão cancelada' });
             socket.disconnect();
-            router.replace('/join');
+            router.dismissAll();
         };
 
         socket.on('player_joined', refreshPlayers);

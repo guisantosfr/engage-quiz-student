@@ -111,7 +111,7 @@ export default function DisplayQuestionScreen() {
             Toast.show({ type: 'error', text1: 'Sessão cancelada pelo professor' });
             socket.disconnect();
             socketRef.current = null;
-            router.replace('/join');
+            router.dismissAll();
         });
 
         socket.on('connect_error', (err) => {
@@ -164,7 +164,7 @@ export default function DisplayQuestionScreen() {
                     style: 'destructive',
                     onPress: () => {
                         socketRef.current?.disconnect();
-                        router.replace('/join');
+                        router.dismissAll();
                     },
                 },
             ]
