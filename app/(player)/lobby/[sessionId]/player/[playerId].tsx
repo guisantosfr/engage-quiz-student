@@ -34,6 +34,9 @@ export default function StudentLobbyScreen() {
     const [players, setPlayers] = useState<Player[]>([]);
 
     const socketRef = useRef<Socket | null>(null);
+    const sessionRef = useRef<Session | null>(null);
+
+    const displayedNickname = player?.nickname ?? (Array.isArray(nickname) ? nickname[0] : nickname) ?? 'Aluno';
 
     if (!sessionId || !playerId) {
         return <Redirect href="/join" />;
@@ -46,6 +49,7 @@ export default function StudentLobbyScreen() {
             );
             const data = await response.json();
             setSession(data.session);
+            sessionRef.current = data.session;
             setPlayer(data.player);
         } catch (error) {
             console.error(error);
@@ -169,12 +173,13 @@ export default function StudentLobbyScreen() {
             socketRef.current = null;
 
             const firstQuestion = data.firstQuestion;
+            const currentSession = sessionRef.current;
             router.replace({
                 pathname: `/quiz/${sessionId}/question/0`,
                 params: {
                     playerId,
-                    quizTitle: session?.quiz?.title ?? '',
-                    totalQuestions: String(session?.quiz?.numberOfQuestions),
+                    quizTitle: currentSession?.quiz?.title ?? '',
+                    totalQuestions: String(currentSession?.quiz?.numberOfQuestions ?? 0),
                     questionData: JSON.stringify(firstQuestion),
                 },
             });
@@ -227,13 +232,13 @@ export default function StudentLobbyScreen() {
                         </Text>
                     </View>
 
-                    <View className="bg-white/10 rounded-2xl p-4 flex-col items-center gap-4 border border-white/20 w-3/4 mx-auto">
+                    <View className="bg-white/10 rounded-2xl p-4 flex-col items-center gap-4 border border-white/20 w-3/4 mx-auto h-40">
                         <View className="w-16 h-16 rounded-full bg-blue-500 items-center justify-center">
                             <FontAwesome6 name="user" iconStyle="solid" size={32} color="white" />
                         </View>
                         <View className="flex-1">
                             <Text className="text-white/60 text-sm text-center">Conectado como</Text>
-                            <Text className="text-white text-lg font-semibold text-center">{player?.nickname ?? nickname}</Text>
+                            <Text className="text-white text-lg font-semibold text-center">{displayedNickname}</Text>
                         </View>
                     </View>
 

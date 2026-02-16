@@ -49,7 +49,10 @@ export default function JoinScreen() {
                     text1: 'Conectado com sucesso!',
                 })
 
-                router.push(`/lobby/${data.session.id}/player/${data.player.id}?nickname=${encodeURIComponent(nickname.trim())}`);
+                router.push({
+                    pathname: `/lobby/${data.session.id}/player/${data.player.id}`,
+                    params: { nickname: nickname.trim() },
+                });
             } else {
                 setLoading(false);
                 Toast.show({
