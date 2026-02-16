@@ -44,6 +44,8 @@ export default function JoinScreen() {
             const data = await response.json();
 
             if (response.ok) {
+                setLoading(false);
+
                 Toast.show({
                     type: 'success',
                     text1: 'Conectado com sucesso!',
