@@ -255,10 +255,21 @@ export default function StudentLobbyScreen() {
                         {visiblePlayers.map((player) => (
                             <View
                                 key={player?.id}
-                                className="bg-white/10 rounded-xl px-4 py-3 flex-row items-center gap-2 border border-white/10"
+                                className={`rounded-xl px-4 py-3 flex-row items-center gap-2 border ${player?.nickname === displayedNickname
+                                    ? "bg-blue-500/20 border-blue-500/50"
+                                    : "bg-white/10 border-white/10"
+                                    }`}
                             >
-                                <View className="w-8 h-8 rounded-full bg-white/20 items-center justify-center">
-                                    <FontAwesome6 name="user" iconStyle="solid" size={12} color="rgba(255,255,255,0.8)" />
+                                <View className={`w-8 h-8 rounded-full items-center justify-center ${player?.nickname === displayedNickname
+                                    ? "bg-blue-500"
+                                    : "bg-white/20"
+                                    }`}>
+                                    <FontAwesome6
+                                        name="user"
+                                        iconStyle="solid"
+                                        size={12}
+                                        color="rgba(255,255,255,0.8)"
+                                    />
                                 </View>
                                 <Text className="text-white text-sm">{player?.nickname}</Text>
                             </View>
