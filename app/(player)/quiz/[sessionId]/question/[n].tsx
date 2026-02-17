@@ -107,6 +107,15 @@ export default function DisplayQuestionScreen() {
             setTimeLeft(nextQuestion.timeLimit);
         });
 
+        socket.on('session_finished', () => {
+            socket.disconnect();
+            socketRef.current = null;
+            router.replace({
+                pathname: `/quiz/${sessionId}/results`,
+                params: { playerId },
+            });
+        });
+
         socket.on('session_canceled', () => {
             Toast.show({ type: 'error', text1: 'Sessão cancelada pelo professor' });
             socket.disconnect();
@@ -122,6 +131,7 @@ export default function DisplayQuestionScreen() {
             socket.off('answer_result');
             socket.off('question_closed');
             socket.off('next_question');
+            socket.off('session_finished');
             socket.off('session_canceled');
             socket.off('connect_error');
             socket.disconnect();
