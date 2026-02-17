@@ -10,7 +10,7 @@ interface AnswerDetail {
     questionIndex: number;
     questionText: string;
     selectedOption: { id: string; text: string };
-    correctOption: string;
+    correctOption: { id: string; text: string };
     isCorrect: boolean;
 }
 
@@ -182,7 +182,7 @@ export default function FinalResultsScreen() {
                                     {!answer.isCorrect && (
                                         <Text className="text-white/60">
                                             Correta:{' '}
-                                            <Text className="text-green-400">{answer.correctOption}</Text>
+                                            <Text className="text-green-400">{answer.correctOption.text}</Text>
                                         </Text>
                                     )}
                                 </View>

@@ -205,7 +205,7 @@ export default function DisplayQuestionScreen() {
     const isTrueFalse = question.type === 'TRUE_FALSE';
     const colors = isTrueFalse ? TRUE_FALSE_COLORS : OPTION_COLORS;
     const isLocked = confirmed || submitting || closedReason !== null || timeLeft <= 0;
-    const hideOptionTexts = question.options.some((o) => o.text.length > 75);
+    const hideOptionTexts = question.options.some((o) => o.text.length >= 85);
 
     return (
         <GradientBackground>
