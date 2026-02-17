@@ -205,6 +205,7 @@ export default function DisplayQuestionScreen() {
     const isTrueFalse = question.type === 'TRUE_FALSE';
     const colors = isTrueFalse ? TRUE_FALSE_COLORS : OPTION_COLORS;
     const isLocked = confirmed || submitting || closedReason !== null || timeLeft <= 0;
+    const hideOptionTexts = question.options.some((o) => o.text.length > 50);
 
     return (
         <GradientBackground>
@@ -270,6 +271,15 @@ export default function DisplayQuestionScreen() {
                         </Text>
                     </View>
 
+                    {hideOptionTexts && (
+                        <View className="bg-yellow-500/15 border border-yellow-500/30 rounded-xl px-4 py-3 flex-row items-center gap-3 mb-4">
+                            <FontAwesome6 name="tv" iconStyle="solid" size={16} color="#eab308" />
+                            <Text className="text-yellow-300 text-sm font-medium flex-1">
+                                Leia as opções na tela do professor
+                            </Text>
+                        </View>
+                    )}
+
                     <View className={`gap-3 ${isTrueFalse ? '' : 'mt-2'}`}>
                         {question.options.map((option, index) => {
                             const colorSet = colors[index % colors.length];
@@ -281,7 +291,7 @@ export default function DisplayQuestionScreen() {
                                 <Pressable
                                     key={option.id}
                                     onPress={() => !isLocked && setSelectedOptionId(option.id)}
-                                    className={`rounded-2xl p-4 flex-row items-center gap-4 border ${bgClass} ${borderClass} ${isLocked ? 'opacity-70' : ''}`}
+                                    className={`rounded-2xl p-4 flex-row items-center ${hideOptionTexts ? 'justify-center' : 'gap-4'} border ${bgClass} ${borderClass} ${isLocked ? 'opacity-70' : ''}`}
                                     disabled={isLocked}
                                 >
                                     <View className={`w-10 h-10 rounded-full items-center justify-center ${isSelected ? 'bg-white/30' : 'bg-white/10'}`}>
@@ -301,9 +311,11 @@ export default function DisplayQuestionScreen() {
                                             />
                                         )}
                                     </View>
-                                    <Text className="text-white text-base flex-1 font-medium">
-                                        {option.text}
-                                    </Text>
+                                    {!hideOptionTexts && (
+                                        <Text className="text-white text-base flex-1 font-medium">
+                                            {option.text}
+                                        </Text>
+                                    )}
                                     {isSelected && (
                                         <FontAwesome6 name="paper-plane" iconStyle="solid" size={20} color="white" />
                                     )}
@@ -312,11 +324,14 @@ export default function DisplayQuestionScreen() {
                         })}
                     </View>
 
-                    {!isLocked && (
+                </ScrollView>
+
+                <View className="px-5 pb-4">
+                    {!isLocked ? (
                         <Pressable
                             onPress={handleConfirm}
                             disabled={!selectedOptionId}
-                            className={`mt-8 p-4 rounded-2xl flex-row items-center justify-center gap-3 ${selectedOptionId ? 'bg-blue-600 active:bg-blue-700' : 'bg-white/10'}`}
+                            className={`p-4 rounded-2xl flex-row items-center justify-center gap-3 ${selectedOptionId ? 'bg-blue-600 active:bg-blue-700' : 'bg-white/10'}`}
                             style={selectedOptionId ? styles.button : undefined}
                         >
                             <FontAwesome6
@@ -329,17 +344,15 @@ export default function DisplayQuestionScreen() {
                                 Confirmar Resposta
                             </Text>
                         </Pressable>
-                    )}
-
-                    {isLocked && (
-                        <View className="mt-8 items-center gap-3 bg-white/5 rounded-2xl p-5 border border-white/10">
+                    ) : (
+                        <View className="items-center gap-3 bg-white/5 rounded-2xl p-5 border border-white/10">
                             <ActivityIndicator size="small" color="#60a5fa" />
                             <Text className="text-white/70 text-base font-medium text-center">
                                 Aguarde a próxima questão
                             </Text>
                         </View>
                     )}
-                </ScrollView>
+                </View>
             </SafeAreaView>
         </GradientBackground>
     );
@@ -347,7 +360,7 @@ export default function DisplayQuestionScreen() {
 
 const styles = StyleSheet.create({
     scrollContent: {
-        paddingBottom: 32,
+        paddingBottom: 16,
     },
     button: {
         shadowColor: '#3b82f6',
