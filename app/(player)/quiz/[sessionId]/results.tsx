@@ -9,7 +9,7 @@ import Toast from 'react-native-toast-message';
 interface AnswerDetail {
     questionIndex: number;
     questionText: string;
-    selectedOption: string;
+    selectedOption: { id: string; text: string };
     correctOption: string;
     isCorrect: boolean;
 }
@@ -89,15 +89,14 @@ export default function FinalResultsScreen() {
     }
 
     const { quiz, player, performance, answers } = results;
-    const accuracyPercent = Math.round(performance.accuracy * 100);
 
     return (
         <GradientBackground>
             <SafeAreaView className="flex-1">
-                <View className="items-center py-4 px-5">
+                <View className="items-center p-5 my-5">
                     <FontAwesome6 name="flag-checkered" iconStyle="solid" size={28} color="#60a5fa" />
-                    <Text className="text-2xl font-bold text-white mt-2">Resultado Final</Text>
-                    <Text className="text-white/60 text-sm mt-1">{quiz.title}</Text>
+                    <Text className="text-2xl font-bold text-white my-2">Resultado Final</Text>
+                    <Text className="text-white/60">{quiz.title}</Text>
                 </View>
 
                 <ScrollView
@@ -110,13 +109,13 @@ export default function FinalResultsScreen() {
                             <View className="w-14 h-14 rounded-full bg-blue-500 items-center justify-center">
                                 <FontAwesome6 name="user" iconStyle="solid" size={24} color="white" />
                             </View>
-                            <View className="flex-1">
-                                <Text className="text-white/60 text-sm">{player.nickname}</Text>
-                                <Text className="text-white text-2xl font-bold">
+                            <View className="flex-1 ml-2">
+                                <Text className="text-white/60">{player.nickname}</Text>
+                                <Text className="text-white text-2xl font-bold my-1">
                                     {performance.position}º lugar
                                 </Text>
-                                <Text className="text-white/50 text-xs">
-                                    de {performance.totalPlayers} jogadores
+                                <Text className="text-white/50 text-sm">
+                                    de {performance.totalPlayers} {performance.totalPlayers === 1 ? 'jogador' : 'jogadores'}
                                 </Text>
                             </View>
                         </View>
@@ -128,21 +127,21 @@ export default function FinalResultsScreen() {
                             <Text className="text-green-400 text-2xl font-bold mt-1">
                                 {performance.correctAnswers}
                             </Text>
-                            <Text className="text-white/50 text-xs">Acertos</Text>
+                            <Text className="text-white/50 text-sm">{performance.correctAnswers === 1 ? 'Acerto' : 'Acertos'}</Text>
                         </View>
                         <View className="flex-1 bg-white/5 rounded-2xl p-4 border border-white/10 items-center">
                             <FontAwesome6 name="list-ol" iconStyle="solid" size={18} color="#60a5fa" />
                             <Text className="text-blue-400 text-2xl font-bold mt-1">
                                 {performance.totalAnswers}
                             </Text>
-                            <Text className="text-white/50 text-xs">Respondidas</Text>
+                            <Text className="text-white/50 text-sm">{performance.totalAnswers === 1 ? 'Respondida' : 'Respondidas'}</Text>
                         </View>
                         <View className="flex-1 bg-yellow-500/15 rounded-2xl p-4 border border-yellow-500/30 items-center">
                             <FontAwesome6 name="percent" iconStyle="solid" size={18} color="#eab308" />
                             <Text className="text-yellow-400 text-2xl font-bold mt-1">
-                                {accuracyPercent}%
+                                {performance.accuracy}%
                             </Text>
-                            <Text className="text-white/50 text-xs">Precisão</Text>
+                            <Text className="text-white/50 text-sm">Precisão</Text>
                         </View>
                     </View>
 
@@ -152,8 +151,8 @@ export default function FinalResultsScreen() {
                             <View
                                 key={answer.questionIndex}
                                 className={`rounded-xl p-4 border ${answer.isCorrect
-                                        ? 'bg-green-500/10 border-green-500/25'
-                                        : 'bg-red-500/10 border-red-500/25'
+                                    ? 'bg-green-500/10 border-green-500/25'
+                                    : 'bg-red-500/10 border-red-500/25'
                                     }`}
                             >
                                 <View className="flex-row items-center gap-2 mb-2">
@@ -170,18 +169,18 @@ export default function FinalResultsScreen() {
                                         Questão {answer.questionIndex + 1}
                                     </Text>
                                 </View>
-                                <Text className="text-white text-sm font-medium mb-2" numberOfLines={2}>
+                                <Text className="text-white font-medium mb-2" numberOfLines={2}>
                                     {answer.questionText}
                                 </Text>
                                 <View className="gap-1">
-                                    <Text className="text-white/60 text-xs">
+                                    <Text className="text-white/60">
                                         Sua resposta:{' '}
                                         <Text className={answer.isCorrect ? 'text-green-400' : 'text-red-400'}>
-                                            {answer.selectedOption}
+                                            {answer.selectedOption.text}
                                         </Text>
                                     </Text>
                                     {!answer.isCorrect && (
-                                        <Text className="text-white/60 text-xs">
+                                        <Text className="text-white/60">
                                             Correta:{' '}
                                             <Text className="text-green-400">{answer.correctOption}</Text>
                                         </Text>

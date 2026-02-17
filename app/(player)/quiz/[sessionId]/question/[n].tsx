@@ -205,7 +205,7 @@ export default function DisplayQuestionScreen() {
     const isTrueFalse = question.type === 'TRUE_FALSE';
     const colors = isTrueFalse ? TRUE_FALSE_COLORS : OPTION_COLORS;
     const isLocked = confirmed || submitting || closedReason !== null || timeLeft <= 0;
-    const hideOptionTexts = question.options.some((o) => o.text.length > 50);
+    const hideOptionTexts = question.options.some((o) => o.text.length > 75);
 
     return (
         <GradientBackground>
@@ -316,7 +316,7 @@ export default function DisplayQuestionScreen() {
                                             {option.text}
                                         </Text>
                                     )}
-                                    {isSelected && (
+                                    {(isSelected && !hideOptionTexts) && (
                                         <FontAwesome6 name="paper-plane" iconStyle="solid" size={20} color="white" />
                                     )}
                                 </Pressable>
