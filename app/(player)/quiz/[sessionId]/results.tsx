@@ -189,10 +189,12 @@ export default function FinalResultsScreen() {
                             </View>
                         ))}
                     </View>
+                </ScrollView>
 
+                <View className="px-5 pb-4">
                     <Pressable
                         onPress={() => router.dismissAll()}
-                        className="mt-8 p-4 rounded-2xl bg-blue-600 active:bg-blue-700"
+                        className="p-4 rounded-2xl bg-blue-600 active:bg-blue-700"
                         style={styles.button}
                     >
                         <View className="flex-row items-center justify-center gap-3">
@@ -200,7 +202,7 @@ export default function FinalResultsScreen() {
                             <Text className="text-xl text-white font-bold">Voltar ao Início</Text>
                         </View>
                     </Pressable>
-                </ScrollView>
+                </View>
             </SafeAreaView>
         </GradientBackground>
     );
@@ -208,7 +210,7 @@ export default function FinalResultsScreen() {
 
 const styles = StyleSheet.create({
     scrollContent: {
-        paddingBottom: 32,
+        paddingBottom: 16,
     },
     button: {
         shadowColor: '#3b82f6',

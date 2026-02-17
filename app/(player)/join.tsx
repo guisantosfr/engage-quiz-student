@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
 import { Pressable, Text, TextInput, View, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Alert, ActivityIndicator } from "react-native";
 import GradientBackground from "@/components/GradientBackground";
 import FontAwesome6 from "@react-native-vector-icons/fontawesome6";
@@ -11,6 +12,14 @@ export default function JoinScreen() {
     const [nickname, setNickname] = useState<string>('');
     const [sessionCode, setSessionCode] = useState<string>('');
     const [loading, setLoading] = useState(false);
+
+    useFocusEffect(
+        useCallback(() => {
+            setNickname('');
+            setSessionCode('');
+            setLoading(false);
+        }, [])
+    );
 
     const CODE_LENGTH = 6;
 
