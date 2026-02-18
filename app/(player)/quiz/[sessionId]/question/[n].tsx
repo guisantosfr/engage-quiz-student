@@ -348,7 +348,7 @@ export default function DisplayQuestionScreen() {
                         <View className="items-center gap-3 bg-white/5 rounded-2xl p-5 border border-white/10">
                             <ActivityIndicator size="small" color="#60a5fa" />
                             <Text className="text-white/70 text-base font-medium text-center">
-                                Aguarde a próxima questão
+                                {questionNumber === totalQuestionsCount ? 'Aguarde os resultados do questionário' : 'Aguarde a próxima questão'}
                             </Text>
                         </View>
                     )}
