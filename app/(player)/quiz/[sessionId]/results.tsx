@@ -134,7 +134,7 @@ export default function FinalResultsScreen() {
                             <Text className="text-blue-400 text-2xl font-bold mt-1">
                                 {performance.totalAnswers}
                             </Text>
-                            <Text className="text-white/50 text-sm">{performance.totalAnswers === 1 ? 'Respondida' : 'Respondidas'}</Text>
+                            <Text className="text-white/50 text-sm">{performance.totalAnswers === 1 ? 'Resposta' : 'Respostas'}</Text>
                         </View>
                         <View className="flex-1 bg-yellow-500/15 rounded-2xl p-4 border border-yellow-500/30 items-center">
                             <FontAwesome6 name="percent" iconStyle="solid" size={18} color="#eab308" />

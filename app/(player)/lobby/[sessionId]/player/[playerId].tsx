@@ -202,7 +202,12 @@ export default function StudentLobbyScreen() {
 
     }, [sessionId, playerId, fetchPlayers, router]);
 
-    const visiblePlayers = players.slice(0, MAX_VISIBLE_PLAYERS);
+    const sortedPlayers = [...players].sort((a, b) => {
+        if (a.nickname === displayedNickname) return -1;
+        if (b.nickname === displayedNickname) return 1;
+        return 0;
+    });
+    const visiblePlayers = sortedPlayers.slice(0, MAX_VISIBLE_PLAYERS);
     const hiddenPlayersCount = Math.max(0, players.length - MAX_VISIBLE_PLAYERS);
 
     return (
