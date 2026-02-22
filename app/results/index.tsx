@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { View, Text, Pressable, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 import GradientBackground from '@/components/GradientBackground';
 import Toast from 'react-native-toast-message';
+import { useSessionStore } from '@/stores/useSessionStore';
 
 interface AnswerDetail {
     questionIndex: number;
@@ -17,7 +18,6 @@ interface AnswerDetail {
 interface ResultsData {
     session: { id: string; code: string };
     quiz: { title: string; numberOfQuestions: number };
-    player: { id: string; nickname: string };
     performance: {
         correctAnswers: number;
         totalAnswers: number;
@@ -29,19 +29,18 @@ interface ResultsData {
 }
 
 export default function FinalResultsScreen() {
-    const { sessionId, playerId } = useLocalSearchParams<{
-        sessionId: string;
-        playerId: string;
-    }>();
     const router = useRouter();
+    const { session, player, resetGame } = useSessionStore();
 
     const [results, setResults] = useState<ResultsData | null>(null);
     const [loading, setLoading] = useState(true);
 
     const fetchResults = useCallback(async () => {
+        const { session: s, player: p } = useSessionStore.getState();
+        if (!s || !p) return;
         try {
             const response = await fetch(
-                `${process.env.EXPO_PUBLIC_API_URL}/sessions/${sessionId}/results/${playerId}`
+                `${process.env.EXPO_PUBLIC_API_URL}/sessions/${s.id}/results/${p.id}`
             );
             if (!response.ok) throw new Error('Erro ao carregar resultados');
             const data: ResultsData = await response.json();
@@ -52,11 +51,15 @@ export default function FinalResultsScreen() {
         } finally {
             setLoading(false);
         }
-    }, [sessionId, playerId]);
+    }, []);
 
     useEffect(() => {
         fetchResults();
     }, [fetchResults]);
+
+    if (!session || !player) {
+        return <Redirect href="/join" />;
+    }
 
     if (loading) {
         return (
@@ -88,7 +91,7 @@ export default function FinalResultsScreen() {
         );
     }
 
-    const { quiz, player, performance, answers } = results;
+    const { quiz, performance, answers } = results;
 
     return (
         <GradientBackground>
@@ -193,7 +196,7 @@ export default function FinalResultsScreen() {
 
                 <View className="px-5 pb-4">
                     <Pressable
-                        onPress={() => router.dismissAll()}
+                        onPress={() => { resetGame(); router.dismissAll(); }}
                         className="p-4 rounded-2xl bg-blue-600 active:bg-blue-700"
                         style={styles.button}
                     >

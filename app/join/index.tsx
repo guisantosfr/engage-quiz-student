@@ -5,9 +5,11 @@ import { Pressable, Text, TextInput, View, KeyboardAvoidingView, Platform, Scrol
 import GradientBackground from "@/components/GradientBackground";
 import FontAwesome6 from "@react-native-vector-icons/fontawesome6";
 import Toast from "react-native-toast-message";
+import { useSessionStore } from "@/stores/useSessionStore";
 
 export default function JoinScreen() {
     const router = useRouter();
+    const setJoinData = useSessionStore((state) => state.setJoinData);
 
     const [nickname, setNickname] = useState<string>('');
     const [sessionCode, setSessionCode] = useState<string>('');
@@ -55,15 +57,14 @@ export default function JoinScreen() {
             if (response.ok) {
                 setLoading(false);
 
+                setJoinData(data.session, data.player);
+
                 Toast.show({
                     type: 'success',
                     text1: 'Conectado com sucesso!',
                 })
 
-                router.push({
-                    pathname: `/lobby/${data.session.id}/player/${data.player.id}`,
-                    params: { nickname: nickname.trim() },
-                });
+                router.push('/lobby');
             } else {
                 setLoading(false);
                 Toast.show({

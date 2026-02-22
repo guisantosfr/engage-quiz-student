@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -9,90 +9,59 @@ import {
     StyleSheet,
     BackHandler,
 } from 'react-native';
-import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 import GradientBackground from '@/components/GradientBackground';
-import { Session } from '@/types/Session';
 import { Player } from '@/types/Player';
 import Toast from 'react-native-toast-message';
-import { io, Socket } from 'socket.io-client';
+import { useSessionStore } from '@/stores/useSessionStore';
 
 const MAX_VISIBLE_PLAYERS = 10;
 
 export default function StudentLobbyScreen() {
-    const { sessionId, playerId, nickname } = useLocalSearchParams<{
-        sessionId: string;
-        playerId: string;
-        nickname: string;
-    }>();
-
     const router = useRouter();
 
-    const [session, setSession] = useState<Session>();
-    const [player, setPlayer] = useState<Player>();
+    const { session, player, socket, connectSocket, setNextQuestion, disconnectSocket, resetGame } = useSessionStore();
+
     const [players, setPlayers] = useState<Player[]>([]);
 
-    const socketRef = useRef<Socket | null>(null);
-    const sessionRef = useRef<Session | null>(null);
-
-    const displayedNickname = player?.nickname ?? (Array.isArray(nickname) ? nickname[0] : nickname) ?? 'Aluno';
-
-    if (!sessionId || !playerId) {
-        return <Redirect href="/join" />;
-    }
-
-    const fetchSessionPlayerData = useCallback(async () => {
-        try {
-            const response = await fetch(
-                `${process.env.EXPO_PUBLIC_API_URL}/sessions/${sessionId}/player/${playerId}`
-            );
-            const data = await response.json();
-            setSession(data.session);
-            sessionRef.current = data.session;
-            setPlayer(data.player);
-        } catch (error) {
-            console.error(error);
-            Toast.show({ type: 'error', text1: 'Erro ao carregar sessão' });
-        }
-    }, [sessionId, playerId]);
+    const displayedNickname = player?.nickname ?? '';
 
     const fetchPlayers = useCallback(async () => {
+        if (!session) return;
         try {
             const response = await fetch(
-                `${process.env.EXPO_PUBLIC_API_URL}/sessions/${sessionId}/players`
+                `${process.env.EXPO_PUBLIC_API_URL}/sessions/${session.id}/players`
             );
             const data = await response.json();
             setPlayers(data);
         } catch (error) {
             console.error(error);
         }
-    }, [sessionId]);
-
-    useEffect(() => {
-        fetchSessionPlayerData();
-        fetchPlayers();
-    }, [fetchSessionPlayerData, fetchPlayers]);
+    }, [session?.id]);
 
     const leaveSession = useCallback(async () => {
+        if (!session || !player) return;
         try {
             const response = await fetch(
-                `${process.env.EXPO_PUBLIC_API_URL}/sessions/${sessionId}/players/${playerId}/leave`,
+                `${process.env.EXPO_PUBLIC_API_URL}/sessions/${session.id}/players/${player.id}/leave`,
                 { method: 'DELETE' }
             );
 
             if (response.ok) {
                 Toast.show({ type: 'success', text1: 'Você saiu da sessão' });
-                socketRef.current?.disconnect();
+                resetGame();
+                disconnectSocket();
                 router.dismissAll();
             } else {
                 Toast.show({ type: 'error', text1: 'Não foi possível sair da sessão' });
             }
         } catch (error) {
-            console.error(error)
+            console.error(error);
             Toast.show({ type: 'error', text1: 'Não foi possível sair da sessão' });
         }
-    }, [sessionId, playerId, router]);
+    }, [session?.id, player?.id, router]);
 
     const handleExit = useCallback(() => {
         Alert.alert(
@@ -100,14 +69,16 @@ export default function StudentLobbyScreen() {
             'Tem certeza que deseja sair do questionário?',
             [
                 { text: 'Cancelar', style: 'cancel' },
-                {
-                    text: 'Sair',
-                    style: 'destructive',
-                    onPress: leaveSession
-                },
+                { text: 'Sair', style: 'destructive', onPress: leaveSession },
             ]
         );
     }, [leaveSession]);
+
+    useEffect(() => {
+        if (!session || !player) return;
+        fetchPlayers();
+        connectSocket();
+    }, []);
 
     useEffect(() => {
         const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -118,24 +89,10 @@ export default function StudentLobbyScreen() {
     }, [handleExit]);
 
     useEffect(() => {
-        const socket = io(`${process.env.EXPO_PUBLIC_API_URL}/sessions`, {
-            transports: ['websocket'],
-            autoConnect: true,
-        });
+        if (!socket || !session || !player) return;
 
-        socketRef.current = socket;
-
-        socket.on("connect", () => {
-            socket.emit('join_session', {
-                sessionId,
-                playerId,
-                nickname: player?.nickname ?? nickname ?? 'Aluno',
-            });
-        });
-
-        const shouldHandle = (payload: any) => {
-            return !payload?.sessionId || payload.sessionId === sessionId;
-        };
+        const shouldHandle = (payload: any) =>
+            !payload?.sessionId || payload.sessionId === session.id;
 
         const refreshPlayers = async (payload: any) => {
             if (!shouldHandle(payload)) return;
@@ -144,12 +101,10 @@ export default function StudentLobbyScreen() {
 
         const onPlayerKicked = (payload: any) => {
             if (!shouldHandle(payload)) return;
-
             const kickedId = payload?.player?.playerId ?? payload?.playerId;
-
-            if (kickedId === playerId) {
+            if (kickedId === player.id) {
                 Toast.show({ type: 'error', text1: 'Você foi expulso da sessão' });
-                socket.disconnect();
+                resetGame();
                 router.dismissAll();
             }
         };
@@ -157,37 +112,21 @@ export default function StudentLobbyScreen() {
         const onSessionCanceled = (payload: any) => {
             if (!shouldHandle(payload)) return;
             Toast.show({ type: 'error', text1: 'Sessão cancelada' });
-            socket.disconnect();
+            resetGame();
             router.dismissAll();
+        };
+
+        const onQuizStarted = (data: any) => {
+            setNextQuestion(data.firstQuestion, 1);
+            router.replace('/question');
         };
 
         socket.on('player_joined', refreshPlayers);
         socket.on('player_left', refreshPlayers);
         socket.on('player_disconnected', refreshPlayers);
-
         socket.on('player_kicked', onPlayerKicked);
         socket.on('session_canceled', onSessionCanceled);
-
-        socket.on('quiz_started', (data: any) => {
-            socket.disconnect();
-            socketRef.current = null;
-
-            const firstQuestion = data.firstQuestion;
-            const currentSession = sessionRef.current;
-            router.replace({
-                pathname: `/quiz/${sessionId}/question/0`,
-                params: {
-                    playerId,
-                    quizTitle: currentSession?.quiz?.title ?? '',
-                    totalQuestions: String(currentSession?.quiz?.numberOfQuestions ?? 0),
-                    questionData: JSON.stringify(firstQuestion),
-                },
-            });
-        });
-
-        socket.on('connect_error', (err) => {
-            console.error('Socket connect_error:', err?.message || err);
-        });
+        socket.on('quiz_started', onQuizStarted);
 
         return () => {
             socket.off('player_joined', refreshPlayers);
@@ -195,12 +134,9 @@ export default function StudentLobbyScreen() {
             socket.off('player_disconnected', refreshPlayers);
             socket.off('player_kicked', onPlayerKicked);
             socket.off('session_canceled', onSessionCanceled);
-            socket.off('quiz_started');
-            socket.disconnect();
-            socketRef.current = null;
+            socket.off('quiz_started', onQuizStarted);
         };
-
-    }, [sessionId, playerId, fetchPlayers, router]);
+    }, [socket]);
 
     const sortedPlayers = [...players].sort((a, b) => {
         if (a.nickname === displayedNickname) return -1;
@@ -257,17 +193,17 @@ export default function StudentLobbyScreen() {
                     </View>
 
                     <View className="flex-row flex-wrap gap-3 justify-center">
-                        {visiblePlayers.map((player) => (
+                        {visiblePlayers.map((p) => (
                             <View
-                                key={player?.id}
-                                className={`rounded-xl px-4 py-3 flex-row items-center gap-2 border ${player?.nickname === displayedNickname
-                                    ? "bg-blue-500/20 border-blue-500/50"
-                                    : "bg-white/10 border-white/10"
+                                key={p?.id}
+                                className={`rounded-xl px-4 py-3 flex-row items-center gap-2 border ${p?.nickname === displayedNickname
+                                    ? 'bg-blue-500/20 border-blue-500/50'
+                                    : 'bg-white/10 border-white/10'
                                     }`}
                             >
-                                <View className={`w-8 h-8 rounded-full items-center justify-center ${player?.nickname === displayedNickname
-                                    ? "bg-blue-500"
-                                    : "bg-white/20"
+                                <View className={`w-8 h-8 rounded-full items-center justify-center ${p?.nickname === displayedNickname
+                                    ? 'bg-blue-500'
+                                    : 'bg-white/20'
                                     }`}>
                                     <FontAwesome6
                                         name="user"
@@ -276,7 +212,7 @@ export default function StudentLobbyScreen() {
                                         color="rgba(255,255,255,0.8)"
                                     />
                                 </View>
-                                <Text className="text-white text-sm">{player?.nickname}</Text>
+                                <Text className="text-white text-sm">{p?.nickname}</Text>
                             </View>
                         ))}
 
