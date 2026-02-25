@@ -124,7 +124,7 @@ export default function JoinScreen() {
 
                         <View className="w-full">
                             <Text className="text-sm text-white/70 mb-2 ml-1">
-                                Código / PIN (6 dígitos)
+                                Código de Acesso (6 dígitos)
                             </Text>
                             <View className="flex-row items-center bg-white/10 rounded-2xl border border-white/20 px-4">
                                 <FontAwesome6

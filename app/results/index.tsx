@@ -10,7 +10,7 @@ import { useSessionStore } from '@/stores/useSessionStore';
 interface AnswerDetail {
     questionIndex: number;
     questionText: string;
-    selectedOption: { id: string; text: string };
+    selectedOption: { id: string; text: string } | null;
     correctOption: { id: string; text: string };
     isCorrect: boolean;
 }
@@ -175,11 +175,12 @@ export default function FinalResultsScreen() {
                                 <Text className="text-white font-medium mb-2" numberOfLines={2}>
                                     {answer.questionText}
                                 </Text>
+
                                 <View className="gap-1">
                                     <Text className="text-white/60">
                                         Sua resposta:{' '}
                                         <Text className={answer.isCorrect ? 'text-green-400' : 'text-red-400'}>
-                                            {answer.selectedOption.text}
+                                            {answer.selectedOption ? answer.selectedOption.text : 'Não respondida'}
                                         </Text>
                                     </Text>
                                     {!answer.isCorrect && (
