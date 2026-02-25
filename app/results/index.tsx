@@ -6,8 +6,9 @@ import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 import GradientBackground from '@/components/GradientBackground';
 import Toast from 'react-native-toast-message';
 import { useSessionStore } from '@/stores/useSessionStore';
+import AnswerItem from '@/components/AnswerItem';
 
-interface AnswerDetail {
+export interface AnswerDetail {
     questionIndex: number;
     questionText: string;
     selectedOption: { id: string; text: string } | null;
@@ -149,48 +150,9 @@ export default function FinalResultsScreen() {
                     </View>
 
                     <Text className="text-white text-lg font-semibold mb-3">Suas Respostas</Text>
-                    <View className="gap-2">
+                    <View className="gap-3">
                         {answers.map((answer) => (
-                            <View
-                                key={answer.questionIndex}
-                                className={`rounded-xl p-4 border ${answer.isCorrect
-                                    ? 'bg-green-500/10 border-green-500/25'
-                                    : 'bg-red-500/10 border-red-500/25'
-                                    }`}
-                            >
-                                <View className="flex-row items-center gap-2 mb-2">
-                                    <View className={`w-7 h-7 rounded-full items-center justify-center ${answer.isCorrect ? 'bg-green-500/30' : 'bg-red-500/30'
-                                        }`}>
-                                        <FontAwesome6
-                                            name={answer.isCorrect ? 'check' : 'xmark'}
-                                            iconStyle="solid"
-                                            size={12}
-                                            color={answer.isCorrect ? '#22c55e' : '#ef4444'}
-                                        />
-                                    </View>
-                                    <Text className="text-white/50 text-xs">
-                                        Questão {answer.questionIndex + 1}
-                                    </Text>
-                                </View>
-                                <Text className="text-white font-medium mb-2" numberOfLines={2}>
-                                    {answer.questionText}
-                                </Text>
-
-                                <View className="gap-1">
-                                    <Text className="text-white/60">
-                                        Sua resposta:{' '}
-                                        <Text className={answer.isCorrect ? 'text-green-400' : 'text-red-400'}>
-                                            {answer.selectedOption ? answer.selectedOption.text : 'Não respondida'}
-                                        </Text>
-                                    </Text>
-                                    {!answer.isCorrect && (
-                                        <Text className="text-white/60">
-                                            Correta:{' '}
-                                            <Text className="text-green-400">{answer.correctOption.text}</Text>
-                                        </Text>
-                                    )}
-                                </View>
-                            </View>
+                            <AnswerItem key={answer.questionIndex} answer={answer} />
                         ))}
                     </View>
                 </ScrollView>
