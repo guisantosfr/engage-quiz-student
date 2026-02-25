@@ -9,7 +9,7 @@ import {
     StyleSheet,
     BackHandler,
 } from 'react-native';
-import { Redirect, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 import GradientBackground from '@/components/GradientBackground';
