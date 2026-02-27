@@ -101,7 +101,7 @@ export default function StudentLobbyScreen() {
 
         const onPlayerKicked = (payload: any) => {
             if (!shouldHandle(payload)) return;
-            const kickedId = payload?.player?.playerId ?? payload?.playerId;
+            const kickedId = payload?.player?.id ?? payload?.id;
             if (kickedId === player.id) {
                 Toast.show({ type: 'error', text1: 'Você foi expulso da sessão' });
                 resetGame();
